@@ -177,7 +177,7 @@ def print_statistics(results):
             print(f"  Accepted: {stats['accepted']}")
             print(f"  Rejected: {stats['rejected']}")
             print(f"  Acceptance rate: {stats['acceptance_rate']}%")
-            print("")
+            print()
     
     print("\nOverall Statistics")
     print("-----------------")
@@ -211,8 +211,8 @@ def main():
         print_statistics(results)
         
         # Optional: Save results to CSV
-        save_csv = input("\nWould you like to save the detailed results to CSV? (y/n): ")
-        if save_csv.lower() == 'y':
+        save_csv = input("\nWould you like to save the detailed results to CSV? (y/n): ").strip().lower()
+        if save_csv == 'y':
             csv_path = os.path.join(folder_path, "report_analysis_results.csv")
             df.to_csv(csv_path, index=False)
             print(f"Results saved to {csv_path}")
