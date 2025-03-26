@@ -1,0 +1,16 @@
+file,age,age_group,response_percentage,decision
+medrepo1.pdf,32,20 to 60,50.0,Rejected
+medrepo10.pdf,60,20 to 60,50.0,Rejected
+medrepo11.pdf,19,Below 20,85.0,Accepted
+medrepo12.pdf,17,Below 20,50.0,Rejected
+medrepo13.pdf,61,Above 60,50.0,Rejected
+medrepo14.pdf,63,Above 60,85.0,Accepted
+medrepo15.pdf,64,Above 60,50.0,Rejected
+medrepo2.pdf,58,20 to 60,85.0,Accepted
+medrepo3.pdf,27,20 to 60,50.0,Rejected
+medrepo4.pdf,50,20 to 60,50.0,Rejected
+medrepo5.pdf,65,Above 60,85.0,Accepted
+medrepo6.pdf,40,20 to 60,50.0,Rejected
+medrepo7.pdf,35,20 to 60,50.0,Rejected
+medrepo8.pdf,55,20 to 60,50.0,Rejected
+medrepo9.pdf,28,20 to 60,50.0,Rejected
