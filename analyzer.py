@@ -1,24 +1,25 @@
 import os
 import re
-import PyPDF2
+import spacy
+from spacy.matcher import Matcher
 import pandas as pd
 from collections import defaultdict
-import spacy
-from spacy.matcher import PhraseMatcher, Matcher
 from datetime import datetime
 
-# Load the English NLP model
-nlp = spacy.load("en_core_web_sm")
+# Load English NLP model
+nlp = spacy.load("en_core_web_sm", disable=["parser"])
+nlp.add_pipe("sentencizer")
 
 def extract_text_from_file(file_path):
-    """Extract text from PDF or TXT files."""
+    """Extract text from PDF or TXT files using NLP-aware methods"""
     text = ""
     try:
         if file_path.lower().endswith('.pdf'):
+            import PyPDF2
             with open(file_path, 'rb') as file:
                 reader = PyPDF2.PdfReader(file)
                 for page in reader.pages:
-                    text += page.extract_text() + " "
+                    text += page.extract_text() + "\n"
         elif file_path.lower().endswith('.txt'):
             with open(file_path, 'r', encoding='utf-8') as file:
                 text = file.read()
@@ -27,78 +28,57 @@ def extract_text_from_file(file_path):
     return text
 
 def extract_age_nlp(text):
-    """Extract age using NLP techniques with improved medical report patterns."""
-    # First try direct pattern matching for medical reports
-    medical_patterns = [
-        r'Age:\s*(\d+)',
-        r'Age\s*[\|:]\s*(\d+)',
-        r'Patient\s*Age:\s*(\d+)',
-        r'Age\s*[\|]\s*(\d+)',
-        r'Age\s*(\d+)',
-        r'DOB:\s*\d+/\d+/(\d{4})'  # Extract from birth year
-    ]
-    
-    for pattern in medical_patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            if 'DOB' in pattern:  # Handle birth year
-                birth_year = int(match.group(1))
-                current_year = datetime.now().year
-                return current_year - birth_year
-            return int(match.group(1))
-    
-    # Then try spaCy NER
+    """Pure NLP age extraction with medical context awareness"""
     doc = nlp(text)
-    for ent in doc.ents:
-        if ent.label_ == "AGE":
-            try:
-                return int(ent.text)
-            except ValueError:
-                continue
     
-    # Try more complex patterns if simple ones fail
-    complex_patterns = [
+    # Custom NER patterns for medical reports
+    age_patterns = [
         [{"LOWER": "age"}, {"IS_PUNCT": True, "OP": "?"}, {"LIKE_NUM": True}],
-        [{"LIKE_NUM": True}, {"LOWER": {"IN": ["years", "yrs"]}}, {"LOWER": "old"}]
+        [{"LOWER": "patient"}, {"LOWER": "age"}, {"IS_PUNCT": True, "OP": "?"}, {"LIKE_NUM": True}],
+        [{"LIKE_NUM": True}, {"LOWER": {"IN": ["years", "yrs"]}}, {"LOWER": "old", "OP": "?"}],
+        [{"LOWER": "dob"}, {"IS_PUNCT": True}, {"TEXT": {"REGEX": r"\d{1,2}/\d{1,2}/(\d{4})"}}]
     ]
     
     matcher = Matcher(nlp.vocab)
-    matcher.add("AGE_PATTERNS", complex_patterns)
+    matcher.add("AGE_PATTERNS", age_patterns)
     
     matches = matcher(doc)
     for match_id, start, end in matches:
         span = doc[start:end]
-        for token in span:
-            if token.like_num:
-                return int(token.text)
+        if nlp.vocab.strings[match_id] == "AGE_PATTERNS":
+            for token in span:
+                if token.like_num:
+                    if "dob" in span.text.lower():
+                        birth_year = int(re.search(r"\d{4}", span.text).group())
+                        return datetime.now().year - birth_year
+                    return int(token.text)
+    
+    # Enhanced NER with custom rules
+    for ent in doc.ents:
+        if ent.label_ == "AGE" or (ent.label_ == "CARDINAL" and 1 <= int(ent.text) <= 120):
+            try:
+                return int(ent.text)
+            except:
+                continue
     
     return None
 
-def extract_drug_response_percentage(text):
-    """Extract response percentage from text."""
-    # First look for explicit success rates in medical context
-    medical_response_patterns = [
-        r'Success\s*Rate:\s*(\d+)%',
-        r'Response\s*Rate:\s*(\d+)%',
-        r'Efficacy:\s*(\d+)%',
-        r'Improvement:\s*(\d+)%'
-    ]
+def extract_drug_response_nlp(text):
+    """NLP-based response percentage extraction"""
+    doc = nlp(text)
     
-    for pattern in medical_response_patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            return float(match.group(1))
-    
-    # Fall back to general percentage extraction
-    doc = nlp(text.lower())
-    percentage_patterns = [
-        [{"LIKE_NUM": True}, {"LOWER": {"IN": ["%", "percent", "percentage"]}}],
-        [{"LOWER": "response"}, {"LOWER": "rate"}, {"LIKE_NUM": True}],
-        [{"LOWER": "success"}, {"LOWER": "rate"}, {"LIKE_NUM": True}]
+    # Custom response pattern matcher
+    response_patterns = [
+        [{"LOWER": {"IN": ["response", "success", "efficacy"]}}, 
+         {"LOWER": "rate", "OP": "?"}, 
+         {"IS_PUNCT": True, "OP": "?"}, 
+         {"LIKE_NUM": True}, 
+         {"LOWER": "%", "OP": "?"}],
+        [{"LIKE_NUM": True}, {"LOWER": "%"}, {"LOWER": {"IN": ["response", "success", "improvement"]}}]
     ]
     
     matcher = Matcher(nlp.vocab)
-    matcher.add("PERCENTAGE_PATTERNS", percentage_patterns)
+    matcher.add("RESPONSE_PATTERNS", response_patterns)
     
     matches = matcher(doc)
     for match_id, start, end in matches:
@@ -107,83 +87,61 @@ def extract_drug_response_percentage(text):
             if token.like_num:
                 return float(token.text)
     
-    # If no percentage found, infer from positive language
+    # Sentiment-based estimation
     positive_terms = ["improved", "effective", "success", "positive", "reduced"]
     negative_terms = ["worsened", "ineffective", "failure", "negative", "increased"]
     
-    pos_count = sum(1 for term in positive_terms if term in text.lower())
-    neg_count = sum(1 for term in negative_terms if term in text.lower())
+    doc_lower = nlp(text.lower())
+    pos_score = sum(1 for term in positive_terms if term in doc_lower.text)
+    neg_score = sum(1 for term in negative_terms if term in doc_lower.text)
     
-    if pos_count > neg_count:
-        return 85.0  # Assume positive outcome
-    elif neg_count > pos_count:
-        return 35.0  # Assume negative outcome
-    
-    return 50.0  # Default neutral value
+    if pos_score > neg_score:
+        return 85.0
+    elif neg_score > pos_score:
+        return 35.0
+    return 50.0
 
-def process_reports(folder_path):
-    """Process all reports in the given folder."""
+def classify_age_group(age):
+    """Age group classification"""
+    if age is None:
+        return "Unknown"
+    if age < 20:
+        return "Below 20"
+    elif 20 <= age <= 60:
+        return "20 to 60"
+    else:
+        return "Above 60"
+
+def process_reports_nlp(folder_path):
+    """Pure NLP processing pipeline"""
     data = []
     
-    valid_files = [f for f in os.listdir(folder_path) 
-                  if f.lower().endswith(('.pdf', '.txt'))]
-    
-    if not valid_files:
-        print("No PDF or TXT files found in the specified folder.")
-        return None
-    
-    for file in valid_files:
+    for file in [f for f in os.listdir(folder_path) if f.lower().endswith(('.pdf', '.txt'))]:
         file_path = os.path.join(folder_path, file)
         text = extract_text_from_file(file_path)
+        doc = nlp(text)
         
-        # Improved age extraction with medical report focus
-        age = None
-        age_match = re.search(
-            r'(?:Age|Patient[\s-]*Age)\s*[:|]\s*(\d+)', 
-            text, 
-            re.IGNORECASE
-        )
-        if age_match:
-            age = int(age_match.group(1))
-        else:
-            age = extract_age_nlp(text)
+        age = extract_age_nlp(text)
+        response = extract_drug_response_nlp(text)
+        age_group = classify_age_group(age)
         
-        response_percentage = extract_drug_response_percentage(text)
-        
-        # Robust age group classification including Below 20
-        if isinstance(age, (int, float)):
-            if age < 20:
-                age_group = "Below 20"
-            elif 20 <= age <= 60:
-                age_group = "20 to 60"
-            else:
-                age_group = "Above 60"
-        else:
-            age_group = "Unknown"
-            print(f"Note: Age not found in {file}")
-        
-        # Decision logic with medical context
-        if response_percentage > 80:
-            decision = "Accepted"
-        else:
-            decision = "Rejected"
+        decision = "Accepted" if response > 80 else "Rejected"
         
         data.append({
             'file': file,
             'age': age,
             'age_group': age_group,
-            'response_percentage': response_percentage,
+            'response_percentage': response,
             'decision': decision
         })
     
     return pd.DataFrame(data)
 
 def calculate_statistics(df):
-    """Calculate acceptance statistics by age group and overall."""
+    """Calculate acceptance statistics by age group and overall"""
     if df is None or df.empty:
         return None
     
-    # Initialize all age groups including Below 20
     results = {
         'age_groups': {
             'Below 20': {'total': 0, 'accepted': 0, 'rejected': 0, 'avg_response': 0},
@@ -218,7 +176,7 @@ def calculate_statistics(df):
             response_sums['overall'] += response
             response_counts['overall'] += 1
     
-    # Calculate averages and final decisions for all age groups
+    # Calculate averages and final decisions
     for age_group in results['age_groups']:
         total = results['age_groups'][age_group]['total']
         accepted = results['age_groups'][age_group]['accepted']
@@ -231,9 +189,6 @@ def calculate_statistics(df):
                 results['age_groups'][age_group]['final_decision'] = "Accepted"
             else:
                 results['age_groups'][age_group]['final_decision'] = "Rejected"
-        else:
-            results['age_groups'][age_group]['avg_response'] = 0.0
-            results['age_groups'][age_group]['final_decision'] = "Undetermined"
         
         if total > 0:
             results['age_groups'][age_group]['acceptance_rate'] = round((accepted / total) * 100, 2)
@@ -248,23 +203,21 @@ def calculate_statistics(df):
         else:
             results['overall']['final_decision'] = "Rejected"
     
-    total_overall = results['overall']['total']
-    if total_overall > 0:
+    if results['overall']['total'] > 0:
         results['overall']['acceptance_rate'] = round(
-            (results['overall']['accepted'] / total_overall) * 100, 2
+            (results['overall']['accepted'] / results['overall']['total']) * 100, 2
         )
     
     return results
 
 def print_statistics(results):
-    """Print the statistics in a readable format."""
+    """Print the statistics in a readable format"""
     if not results:
         print("No results to display.")
         return
     
     print("\nDrug Experiment Response Statistics by Age Group")
     print("--------------------------------------------")
-    # Print all age groups including Below 20
     for age_group in ['Below 20', '20 to 60', 'Above 60', 'Unknown']:
         stats = results['age_groups'][age_group]
         if stats['total'] > 0:
@@ -287,9 +240,9 @@ def print_statistics(results):
     print(f"Final overall decision: {results['overall']['final_decision']}")
 
 def main():
-    """Main function to run the analysis."""
-    print("Medical Report Analysis Tool")
-    print("--------------------------")
+    """Main function to run the analysis"""
+    print("Medical Report Analysis Tool (100% NLP)")
+    print("--------------------------------------")
     
     folder_path = input("Enter the path to the folder containing medical reports: ")
     
@@ -297,8 +250,8 @@ def main():
         print("Error: The specified folder does not exist.")
         return
     
-    print("\nProcessing reports...")
-    df = process_reports(folder_path)
+    print("\nProcessing reports using NLP...")
+    df = process_reports_nlp(folder_path)
     
     if df is not None:
         results = calculate_statistics(df)
@@ -306,7 +259,7 @@ def main():
         
         save_csv = input("\nWould you like to save the detailed results to CSV? (y/n): ").strip().lower()
         if save_csv == 'y':
-            csv_path = os.path.join(folder_path, "report_analysis_results.csv")
+            csv_path = os.path.join(folder_path, "nlp_analysis_results.csv")
             df.to_csv(csv_path, index=False)
             print(f"Results saved to {csv_path}")
 
