@@ -241,7 +241,7 @@ def print_statistics(results):
 
 def main():
     """Main function to run the analysis"""
-    print("Medical Report Analysis Tool (100% NLP)")
+    print("Medical Report Analysis")
     print("--------------------------------------")
     
     folder_path = input("Enter the path to the folder containing medical reports: ")
@@ -250,7 +250,7 @@ def main():
         print("Error: The specified folder does not exist.")
         return
     
-    print("\nProcessing reports using NLP...")
+    print("\nProcessing reports ...")
     df = process_reports_nlp(folder_path)
     
     if df is not None:
