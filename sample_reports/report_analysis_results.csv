@@ -1,6 +1,6 @@
-file,age,age_group,decision
-Medical Repor4.pdf,17,0-20,Rejected
-Medical Repor5.pdf,54,51-80,Accepted
-Medical Report1.pdf,38,21-50,Accepted
-Medical Report2.pdf,62,51-80,Rejected
-Medical Report3.pdf,29,21-50,Accepted
+file,age,age_group,acceptance_percentage,decision
+Medical Repor4.pdf,17,Below 20,37.5,Rejected
+Medical Repor5.pdf,54,20 to 60,100.0,Accepted
+Medical Report1.pdf,38,20 to 60,52.63,Rejected
+Medical Report2.pdf,62,Above 60,37.5,Rejected
+Medical Report3.pdf,29,20 to 60,100.0,Accepted
