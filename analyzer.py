@@ -27,6 +27,19 @@ def extract_text_from_file(file_path):
         print(f"Error reading {file_path}: {str(e)}")
     return text
 
+def analyze_document_nlp(text):
+    """Analyze the document using NLP and return insights"""
+    doc = nlp(text)
+    word_count = len([token.text for token in doc if not token.is_punct])
+    sentence_count = len(list(doc.sents))
+    named_entities = [(ent.text, ent.label_) for ent in doc.ents]
+
+    return {
+        "word_count": word_count,
+        "sentence_count": sentence_count,
+        "named_entities": named_entities
+    }
+
 def extract_age_nlp(text):
     """Pure NLP age extraction with medical context awareness"""
     doc = nlp(text)
@@ -124,6 +137,7 @@ def process_reports_nlp(folder_path):
         age = extract_age_nlp(text)
         response = extract_drug_response_nlp(text)
         age_group = classify_age_group(age)
+        document_analysis = analyze_document_nlp(text)
         
         decision = "Accepted" if response > 80 else "Rejected"
         
@@ -132,7 +146,8 @@ def process_reports_nlp(folder_path):
             'age': age,
             'age_group': age_group,
             'response_percentage': response,
-            'decision': decision
+            'decision': decision,
+            'document_analysis': document_analysis
         })
     
     return pd.DataFrame(data)
