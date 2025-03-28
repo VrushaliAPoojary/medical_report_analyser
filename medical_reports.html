@@ -1,0 +1,245 @@
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+    <!-- Sidebar (unchanged from your original code) -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <!-- ... (keep all sidebar content exactly as is) ... -->
+    </ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Topbar (unchanged from your original code) -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <!-- ... (keep all topbar content exactly as is) ... -->
+            </nav>
+            <!-- End of Topbar -->
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
+
+                <!-- Page Heading -->
+                <h1 class="h3 mb-2 text-gray-800">Medical Report Analysis</h1>
+                <p class="mb-4">This table shows the analysis results of medical reports processed through our NLP pipeline.</p>
+
+                <!-- DataTales Example -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Report Analysis Results</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>File</th>
+                                        <th>Age</th>
+                                        <th>Age Group</th>
+                                        <th>Response %</th>
+                                        <th>Decision</th>
+                                        <th>Word Count</th>
+                                        <th>Entities Found</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>File</th>
+                                        <th>Age</th>
+                                        <th>Age Group</th>
+                                        <th>Response %</th>
+                                        <th>Decision</th>
+                                        <th>Word Count</th>
+                                        <th>Entities Found</th>
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+                                    <tr>
+                                        <td>report_001.pdf</td>
+                                        <td>45</td>
+                                        <td>20 to 60</td>
+                                        <td>87.5</td>
+                                        <td><span class="badge badge-success">Accepted</span></td>
+                                        <td>1250</td>
+                                        <td>18</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_002.txt</td>
+                                        <td>32</td>
+                                        <td>20 to 60</td>
+                                        <td>92.3</td>
+                                        <td><span class="badge badge-success">Accepted</span></td>
+                                        <td>980</td>
+                                        <td>15</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_003.pdf</td>
+                                        <td>68</td>
+                                        <td>Above 60</td>
+                                        <td>76.2</td>
+                                        <td><span class="badge badge-danger">Rejected</span></td>
+                                        <td>1540</td>
+                                        <td>22</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_004.txt</td>
+                                        <td>19</td>
+                                        <td>Below 20</td>
+                                        <td>81.9</td>
+                                        <td><span class="badge badge-success">Accepted</span></td>
+                                        <td>1120</td>
+                                        <td>16</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_005.pdf</td>
+                                        <td>55</td>
+                                        <td>20 to 60</td>
+                                        <td>79.5</td>
+                                        <td><span class="badge badge-danger">Rejected</span></td>
+                                        <td>1350</td>
+                                        <td>19</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_006.txt</td>
+                                        <td>27</td>
+                                        <td>20 to 60</td>
+                                        <td>88.7</td>
+                                        <td><span class="badge badge-success">Accepted</span></td>
+                                        <td>1020</td>
+                                        <td>14</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_007.pdf</td>
+                                        <td>72</td>
+                                        <td>Above 60</td>
+                                        <td>65.3</td>
+                                        <td><span class="badge badge-danger">Rejected</span></td>
+                                        <td>1680</td>
+                                        <td>25</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_008.txt</td>
+                                        <td>41</td>
+                                        <td>20 to 60</td>
+                                        <td>94.1</td>
+                                        <td><span class="badge badge-success">Accepted</span></td>
+                                        <td>990</td>
+                                        <td>17</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_009.pdf</td>
+                                        <td>18</td>
+                                        <td>Below 20</td>
+                                        <td>83.6</td>
+                                        <td><span class="badge badge-success">Accepted</span></td>
+                                        <td>1080</td>
+                                        <td>15</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_010.txt</td>
+                                        <td>63</td>
+                                        <td>Above 60</td>
+                                        <td>71.8</td>
+                                        <td><span class="badge badge-danger">Rejected</span></td>
+                                        <td>1420</td>
+                                        <td>21</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_011.pdf</td>
+                                        <td>29</td>
+                                        <td>20 to 60</td>
+                                        <td>89.5</td>
+                                        <td><span class="badge badge-success">Accepted</span></td>
+                                        <td>1150</td>
+                                        <td>16</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_012.txt</td>
+                                        <td>null</td>
+                                        <td>Unknown</td>
+                                        <td>50.0</td>
+                                        <td><span class="badge badge-danger">Rejected</span></td>
+                                        <td>850</td>
+                                        <td>12</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_013.pdf</td>
+                                        <td>47</td>
+                                        <td>20 to 60</td>
+                                        <td>82.3</td>
+                                        <td><span class="badge badge-success">Accepted</span></td>
+                                        <td>1270</td>
+                                        <td>18</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_014.txt</td>
+                                        <td>75</td>
+                                        <td>Above 60</td>
+                                        <td>68.9</td>
+                                        <td><span class="badge badge-danger">Rejected</span></td>
+                                        <td>1580</td>
+                                        <td>23</td>
+                                    </tr>
+                                    <tr>
+                                        <td>report_015.pdf</td>
+                                        <td>22</td>
+                                        <td>20 to 60</td>
+                                        <td>91.2</td>
+                                        <td><span class="badge badge-success">Accepted</span></td>
+                                        <td>1040</td>
+                                        <td>14</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container-fluid -->
+
+        </div>
+        <!-- End of Main Content -->
+
+        <!-- Footer (unchanged from your original code) -->
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; Your Website 2020</span>
+                </div>
+            </div>
+        </footer>
+        <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+</div>
+<!-- End of Page Wrapper -->
+
+<!-- Scroll to Top Button and Logout Modal (unchanged from your original code) -->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-primary" href="login.html">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
