@@ -1,0 +1,16 @@
+file,age,age_group,response_percentage,decision,word_count,entities_found
+medrepo1.pdf,32,20 to 60,85.0,Accepted,108,12
+medrepo10.pdf,60,20 to 60,50.0,Rejected,91,10
+medrepo11.pdf,19,Below 20,85.0,Accepted,95,10
+medrepo12.pdf,17,Below 20,85.0,Accepted,95,13
+medrepo13.pdf,61,Above 60,50.0,Rejected,95,12
+medrepo14.pdf,63,Above 60,85.0,Accepted,92,13
+medrepo15.pdf,64,Above 60,85.0,Accepted,100,9
+medrepo2.pdf,58,20 to 60,50.0,Rejected,100,13
+medrepo3.pdf,27,20 to 60,50.0,Rejected,98,12
+medrepo4.pdf,50,20 to 60,50.0,Rejected,93,13
+medrepo5.pdf,65,Above 60,50.0,Rejected,107,14
+medrepo6.pdf,40,20 to 60,50.0,Rejected,98,12
+medrepo7.pdf,35,20 to 60,50.0,Rejected,94,11
+medrepo8.pdf,55,20 to 60,50.0,Rejected,103,14
+medrepo9.pdf,28,20 to 60,85.0,Accepted,98,14
